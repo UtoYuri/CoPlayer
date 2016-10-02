@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui webenginewidgets network multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,8 +13,13 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    player.cpp \
+    videowidget.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    player.h \
+    videowidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    player.ui
