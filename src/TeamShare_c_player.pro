@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     player.cpp \
-    videowidget.cpp
+    videowidget.cpp \
+    progressbar.cpp
 
 HEADERS  += mainwindow.h \
     player.h \
-    videowidget.h
+    videowidget.h \
+    progressbar.h
 
 FORMS    += mainwindow.ui \
     player.ui

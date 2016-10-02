@@ -16,6 +16,10 @@ Player::~Player()
     delete ui;
 }
 void Player::resizeEvent(QResizeEvent *){
+    /*
+     * 窗口大小改变时间
+     * video界面大小随之改变
+    */
     m_pVideoWidget->resize(ui->player_widget->size());
 }
 void Player::initPlayer(){
@@ -35,6 +39,8 @@ void Player::initPlayer(){
     connect(m_pVideoWidget, &VideoWidget::adjustScreen, this, &Player::adjustScreen);
     connect(ui->slider_volume, &QSlider::valueChanged, this, &Player::setVolume);
     connect(m_pVideoWidget, &VideoWidget::play, this, &Player::play);
+    connect(m_pPlayer, &QMediaPlayer::positionChanged, this, &Player::setProgressBar);
+    connect(ui->progress_bar, &ProgressBar::changePositon, this, &Player::setCurPositon);
     m_pPlayer->setMedia(QUrl("file:///D:/%E8%BF%85%E9%9B%B7%E4%B8%8B%E8%BD%BD/%E8%A1%8C%E5%B0%B8%E8%B5%B0%E8%82%89/%E8%A1%8C%E5%B0%B8%E8%B5%B0%E8%82%89.The.Walking.Dead.S01E01.Chi_Eng.HDTVrip.720X396-YYeTs%E4%BA%BA%E4%BA%BA%E5%BD%B1%E8%A7%86.rmvb"));
 }
 MediaInfo Player::currentMedia(){
@@ -129,6 +135,13 @@ void Player::setBarrageEnable(const bool enable){
     m_bBarrageOn = enable;
 }
 void Player::adjustScreen(const bool adjust = true){
+    /*
+     * 自适应屏幕（全屏）
+     *      自适应false 则显示普通窗口
+     *      自适应true 则判断是否全屏
+     *          全屏  则显示普通窗口
+     *          非全屏 则全屏显示
+    */
     if (!adjust || m_pVideoWidget->isFullScreen()){
         m_pVideoWidget->setFullScreen(false);
         m_pVideoWidget->resize(ui->player_widget->size());
@@ -136,4 +149,18 @@ void Player::adjustScreen(const bool adjust = true){
         m_pVideoWidget->setWindowFlags (Qt::FramelessWindowHint);
         m_pVideoWidget->setFullScreen(true);
     }
+}
+void Player::setProgressBar(qint64 position){
+    /*
+     * 设置进度条
+    */
+    ui->progress_bar->setValue(position * 1000.0 / m_pPlayer->duration());
+    ui->progress_bar->setFormat(QString("%1 / %2").arg(QTime::fromString("00:00:00","hh:mm:ss").addMSecs(position).toString("hh:mm:ss"))
+                                .arg(QTime::fromString("00:00:00","hh:mm:ss").addMSecs(m_pPlayer->duration()).toString("hh:mm:ss")));
+}
+void Player::setCurPositon(float percent){
+    /*
+     * 设置当前播放进度
+    */
+    m_pPlayer->setPosition(m_pPlayer->duration() * percent);
 }

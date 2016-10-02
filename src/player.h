@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "videowidget.h"
+#include "progressbar.h"
 
 #include <QWidget>
 #include <QMediaPlayer>
@@ -9,6 +10,7 @@
 #include <QPainter>
 #include <QLayout>
 #include <QResizeEvent>
+#include <QDateTime>
 #include <QDebug>
 
 struct MediaInfo{
@@ -44,6 +46,8 @@ public slots:
     void setVolume(const int &volume);
     void switchMuted();
     void adjustScreen(const bool adjust);
+    void setProgressBar(qint64 position);
+    void setCurPositon(float percent);
 
 protected:
     void resizeEvent(QResizeEvent *);
