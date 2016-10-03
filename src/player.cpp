@@ -3,14 +3,12 @@
 
 Player::Player(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Player)
-{
+    ui(new Ui::Player){
     ui->setupUi(this);
     initPlayer();
 }
 
-Player::~Player()
-{
+Player::~Player(){
     delete m_pPlayer;
     delete m_pVideoWidget;
     delete ui;
