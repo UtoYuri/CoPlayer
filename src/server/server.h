@@ -3,15 +3,21 @@
 
 #include "user.h"
 #include "usersocket.h"
+#include "reciever.h"
 
 #include <QWidget>
 #include <QTcpServer>
+#include <QStringList>
 
 class Server : public QWidget{
     Q_OBJECT
 public:
     explicit Server(QWidget *parent = 0);
     ~Server();
+
+    inline int onlineNum()const{
+        return m_vUserSocket.size();
+    }
 
 public slots:
     void newOnlineUser();
@@ -21,11 +27,13 @@ public slots:
     void error(QAbstractSocket::SocketError);
     void removeUserSocket();
 
+
 //protected:
     void monitor();
 
 signals:
     void log(const QString &logInfo);
+    void onlineNumChanged(const int num);
 
 private:
     User *m_pUserManager;

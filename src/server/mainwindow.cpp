@@ -11,6 +11,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_pServer, &Server::log, [=](const QString &logInfo){
         ui->log->append(logInfo);
     });
+
+    connect(m_pServer, &Server::onlineNumChanged, [=](const int num){
+        ui->onlinenumber->setValue(num);
+    });
 }
 
 MainWindow::~MainWindow(){

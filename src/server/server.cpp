@@ -20,25 +20,29 @@ void Server::newOnlineUser(){
      *      获取到则判断信息是否正确
      *          不正确则断开连接
      *          正确则登录成功 保持上线状态
+     * 刷新在线人数
     */
     emit log(QStringLiteral("发现新连接"));
     UserSocket* t = new UserSocket(m_pServerUserManager->nextPendingConnection());
     connect(t, &UserSocket::disconnected, this, &Server::removeUserSocket);
     connect(t->getSocket(), &QTcpSocket::readyRead, [=](){
         if (t->getSocket()->bytesAvailable()){
-            emit log(QStringLiteral("收到用户信息") + t->getSocket()->readAll());
+            QString vertify = t->getSocket()->readAll();
+            emit log(QStringLiteral("收到用户信息") + vertify);
             // userId=**&pass=**
-            QString userId = "";
-            QString pass = "";
+            QStringList data = vertify.split("&");
+            QString userId = data.at(0).split("=").at(1);
+            QString pass = data.at(1).split("=").at(1);
             if (!m_pUserManager->log(userId,pass)){
                 emit log(QStringLiteral("用户登录失败,连接中断") + userId);
-                t->getSocket()->disconnect();
+                t->getSocket()->disconnectFromHost();
                 return;
             }else{
                 emit log(QStringLiteral("用户登录成功") + userId);
                 t->setUserId(userId);
                 connect(t->getSocket(), SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
                 m_vUserSocket.append(t);
+                emit onlineNumChanged(onlineNum());
             }
         }
     });
@@ -48,24 +52,29 @@ void Server::newMessage(){
      * 普通消息转发
     */
     m_pRepeaterSocket = m_pServerMessageRepeater->nextPendingConnection();
+    connect(m_pRepeaterSocket, SIGNAL(disconnected()), m_pRepeaterSocket, SLOT(deleteLater()));
     connect(m_pRepeaterSocket, &QTcpSocket::readyRead, [=](){
         if (m_pRepeaterSocket->bytesAvailable()){
             emit log(QStringLiteral("收到消息") + m_pRepeaterSocket->readAll());
         }
     });
-
 }
 void Server::newUploadFile(){
     /*
      * 文件接收
     */
-
+    Reciever *reciever = new Reciever(m_pServerFileReciever->nextPendingConnection());
+    connect(reciever, SIGNAL(recieved()), reciever, SLOT(deleteLater()));
+    connect(reciever, &Reciever::log, [=](const QString &logInfo){
+        emit log(logInfo);
+    });
 }
 void Server::newMediaControl(){
     /*
      * 控制信息转发
     */
     m_pControllerSocket = m_pServerMediaController->nextPendingConnection();
+    connect(m_pControllerSocket, SIGNAL(disconnected()), m_pControllerSocket, SLOT(deleteLater()));
     connect(m_pControllerSocket, &QTcpSocket::readyRead, [=](){
         if (m_pControllerSocket->bytesAvailable()){
             emit log(QStringLiteral("收到命令") + m_pControllerSocket->readAll());
@@ -85,6 +94,7 @@ void Server::removeUserSocket(){
             emit log(QStringLiteral("下线通知") + m_vUserSocket.at(i)->getUserId());
             m_vUserSocket.at(i)->deleteLater();
             m_vUserSocket.removeAt(i);
+            emit onlineNumChanged(onlineNum());
             return;
         }
     }
