@@ -6,10 +6,6 @@ Player::Player(QWidget *parent) :
     ui(new Ui::Player){
     ui->setupUi(this);
     initPlayer();
-
-    m_pMediaControlSocket = new QTcpSocket;
-    m_pMediaControlSocket->connectToHost(QHostAddress("119.28.62.13"), 60002);
-    connect(m_pMediaControlSocket, SIGNAL(disconnected()), m_pMediaControlSocket, SLOT(deleteLater()));
 }
 
 Player::~Player(){
@@ -19,7 +15,7 @@ Player::~Player(){
 }
 void Player::resizeEvent(QResizeEvent *){
     /*
-     * 窗口大小改变事件
+     * 窗口大小改变时间
      * video界面大小随之改变
     */
     m_pVideoWidget->resize(ui->player_widget->size());
@@ -43,22 +39,7 @@ void Player::initPlayer(){
     connect(m_pVideoWidget, &VideoWidget::play, this, &Player::play);
     connect(m_pPlayer, &QMediaPlayer::positionChanged, this, &Player::setProgressBar);
     connect(ui->progress_bar, &ProgressBar::changePositon, this, &Player::setCurPositon);
-
-    connect(m_pPlayer, &QMediaPlayer::stateChanged, [=](QMediaPlayer::State newState){
-        switch (newState) {
-        case QMediaPlayer::StoppedState:
-            m_pMediaControlSocket->write(QString("stopped").toLatin1());
-            break;
-        case QMediaPlayer::PlayingState:
-            m_pMediaControlSocket->write(QString("playing").toLatin1());
-            break;
-        case QMediaPlayer::PausedState:
-            m_pMediaControlSocket->write(QString("paused").toLatin1());
-            break;
-        default:
-            break;
-        }
-    });
+    m_pPlayer->setMedia(QUrl("file:///D:/%E8%BF%85%E9%9B%B7%E4%B8%8B%E8%BD%BD/%E8%A1%8C%E5%B0%B8%E8%B5%B0%E8%82%89/%E8%A1%8C%E5%B0%B8%E8%B5%B0%E8%82%89.The.Walking.Dead.S01E01.Chi_Eng.HDTVrip.720X396-YYeTs%E4%BA%BA%E4%BA%BA%E5%BD%B1%E8%A7%86.rmvb"));
 }
 MediaInfo Player::currentMedia(){
     /*
@@ -71,7 +52,6 @@ void Player::setMedia(const QString &src) const{
      * 设置媒体资源
     */
     m_pPlayer->setMedia(QUrl(src));
-    m_pMediaControlSocket->write(src.toLatin1());
 }
 void Player::play() const{
     /*
@@ -181,5 +161,4 @@ void Player::setCurPositon(float percent){
      * 设置当前播放进度
     */
     m_pPlayer->setPosition(m_pPlayer->duration() * percent);
-    m_pMediaControlSocket->write(QString::number(m_pPlayer->duration() * percent).toLatin1());
 }

@@ -5,8 +5,6 @@
 #include "progressbar.h"
 
 #include <QWidget>
-#include <QTcpSocket>
-#include <QHostAddress>
 #include <QMediaPlayer>
 #include <QVideoWidget>
 #include <QPainter>
@@ -60,8 +58,6 @@ private:
 private:
     QMediaPlayer *m_pPlayer;
     VideoWidget *m_pVideoWidget;
-
-    QTcpSocket *m_pMediaControlSocket;
 
 private:
     Ui::Player *ui;
