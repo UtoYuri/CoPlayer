@@ -9,4 +9,4 @@
 	fileSize	fileNameSize	content
 
 视频控制:
-	orderType(暂停 缓冲 开始 进度调整 设置资源 停止播放 请求同步)	userId	roomId	content(指令  资源 时间 )
+	orderType(暂停 缓冲 开始 进度调整 设置资源 停止播放 请求同步)	userId	roomId	content( 指令  资源 时间 )
