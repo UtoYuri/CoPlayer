@@ -1,62 +1,48 @@
 ﻿#ifndef CHATROOM_H
 #define CHATROOM_H
 
-#include <QObject>
-#include <QHostAddress>
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QTimer>
-#include <QImage>
-#include <QMessageBox>
-#include <QBuffer>
-#include <QStringList>
+//  10.18.204.160
+#include "videochat.h"
 
-#include <opencv2/opencv.hpp>
+#include <QMessageBox>
 
 class ChatRoom : public QObject{
     Q_OBJECT
 public:
     explicit ChatRoom(QObject *parent = 0);
-    void initOpt(){
-        m_nFPS = 30;
-        m_pSocket = NULL;
-    }
+    ~ChatRoom();
+    void initRoomOpt(); //初始化基本变量
+    void initChatRoom();    //初始化聊天室
+    void initUdpOpt(QHostAddress recieverIp, quint16 recieverPort, quint16 listenerPort);   //初始化Udp配置
 
 signals:
     void log(const QString &logInfo); //日志log
+    void newOrder(const QString &orderCode, bool recieved = false); //新命令
+    void newMessage(const QString &msg, bool recieved = false); //新文字消息
 
-    void newCameraCapture(QImage &img, bool recieved = false);  //新照片
-    void newCameraFrame(QImage &img, bool recieved = false);  //新帧
-    void newMessage(const QString &msg, bool recieved = false);
-
-    void cameraClosed();    //摄像头已关闭
-    void socketConnected(); //视频通讯已连接
-    void socketDisconnected();  //视频通讯断开
+    void newCameraFrame(QImage &img, bool recieved = false);  //新视频帧
 
 public slots:
-    void openCamera();  //打开摄像头
-    void readFrame();   //读取当前帧
-    void closeCamera(); //关闭摄像头
-    void capture();     //拍照
 
-    void monitor(int port);     //监听连接请求
-    void connectHost(const QString &socket);     //远程视频连接
-    void disconnectHost();  //断开远程视频连接
-    void handleConnection();   //连接处理
-    void sendFrame(QImage &img);   //发送帧
-    void sendMessage(QString &msg);   //发送消息
-    void recieve();//接受帧+消息
+    void sendMessage(const QString &message);   //发送消息
+    void sendOrder(const QString &orderCode);   //发送命令编号
+    void recieveData(); //接收数据
+    void handleOrder(const int &orderCode); //处理命令码
+
+    void requestVideoChat();    //请求视频通话
+    void startVideoChat();    //开始视频通话
+    void stopVideoChat();    //停止视频通话
 
 private:
-    QTimer *m_pTimer;   //刷新帧计时器
-    int m_nFPS;         //视频帧数
 
-    cv::VideoCapture m_cvCamera;    //摄像头
-    cv::Mat m_cvFrame;    //帧
-    cv::Mat m_cvFrameRecieved;    //接收到的帧
+    QUdpSocket *m_pSocket;  //套接字(文字信息 命令信息)
 
-    QTcpSocket *m_pSocket;  //主动连接socket
-    QTcpServer *m_pServer;  //被动连接socket
+    quint16 m_nRecieverPort;    //接受者端口
+    quint16 m_nListenerPort;    //本地监听端口
+    QHostAddress m_RecieverHostAddress; //接收方ip
+
+    VideoChat *m_pVideoChat;
+
 };
 
 #endif // CHATROOM_H
