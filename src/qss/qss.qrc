@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/media_player">
+        <file>video_controller.qss</file>
+    </qresource>
+</RCC>

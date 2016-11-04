@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>play.png</file>
+        <file>mute.png</file>
+        <file>pause.png</file>
+        <file>full_screen.png</file>
+        <file>list.png</file>
+        <file>normal_screen.png</file>
+        <file>muted.png</file>
+        <file>play-big.png</file>
+        <file>play-big-hover.png</file>
+        <file>logo.png</file>
+    </qresource>
+</RCC>
