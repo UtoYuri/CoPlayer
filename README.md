@@ -12,4 +12,4 @@ Mail ： g.walkingfrog@gmail.com
 2016.11.4 : 美化播放器界面
 
 ##程序截图
-![运行截图](https://github.com/WalkingFrog/CoPlayer/blob/master/other/ui.png)
+![运行截图](https://github.com/WalkingFrog/CoPlayer/blob/master/other/processing.png)
