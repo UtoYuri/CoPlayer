@@ -8,8 +8,8 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent){
 VideoPlayer::~VideoPlayer(){
     delete m_pVideoController;
     delete m_pVideoList;
-    delete m_pVideoPlayer;
     delete m_pVideoWidget;
+    delete m_pVideoPlayer;
     delete m_pVLayout;
 }
 void VideoPlayer::initPlayerOpt(){
@@ -41,6 +41,8 @@ void VideoPlayer::initVideoPlayer(){
     /*
      * 初始化播放器
     */
+    //设置可拖放
+
     m_pVideoPlayer->setVolume(60);
     m_pVideoPlayer->setPlaylist(m_pVideoList);
     m_pVideoPlayer->setVideoOutput(m_pVideoWidget);
@@ -48,7 +50,15 @@ void VideoPlayer::initVideoPlayer(){
 
     //连接信号槽
     //播放新媒体
-    connect(m_pVideoWidget, SIGNAL(playNewMedia(QStringList)), this, SLOT(playMedia(QStringList)));
+    connect(m_pVideoWidget, SIGNAL(playNewMedias(QStringList)), this, SLOT(playMedia(QStringList)));
+    //播放指定媒体
+    connect(m_pVideoWidget, &VideoWidget::playMedia, [=](int index){
+        m_pVideoList->setCurrentIndex(index);
+    });
+    //删除媒体
+    connect(m_pVideoWidget, &VideoWidget::deleteMedia, [=](int index){
+        m_pVideoList->removeMedia(index);
+    });
     //全屏/半屏切换
     connect(m_pVideoWidget, &VideoWidget::fullScreenToggled, this, &VideoPlayer::fullScreenToggled);
     //进度变更
@@ -145,11 +155,20 @@ void VideoPlayer::playMedia(QStringList files){
     /*
      * 播放媒体
     */
+    QStringList supportSuffixs;
+    supportSuffixs<<"WMA"<<"MP3"<<"WAV"<<"RM";
+    supportSuffixs<<"MP4"<<"AVI"<<"RMVB"<<"FLV"<<"MKV";
     m_pVideoWidget->hideButton();
     for (int i = 0; i < files.size(); ++i){
-        m_pVideoWidget->addMedia(files.at(i));
-        m_pVideoList->addMedia(QUrl(files.at(i)));
+        QString file = files.at(i);
+        QString suffix = file.mid(file.lastIndexOf(".") + 1).toUpper();
+        if (supportSuffixs.indexOf(suffix) < 0){
+            return;
+        }
+        m_pVideoWidget->addMedia(file);
+        m_pVideoList->addMedia(QUrl(file));
     }
+    m_pVideoList->setCurrentIndex(0);
     m_pVideoPlayer->play();
 }
 void VideoPlayer::fullScreenToggled(bool fullScreen){

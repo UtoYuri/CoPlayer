@@ -4,6 +4,7 @@ VideoWidget::VideoWidget(QWidget *parent):QVideoWidget(parent){
     setStyleSheet("background-color: rgba(0, 0, 0, 200)");
     setFocus();
     setWindowFlags (Qt::FramelessWindowHint);
+    setAcceptDrops(true);
     initWidgetUi();
     initVideoWidget();
 }
@@ -73,6 +74,9 @@ void VideoWidget::initVideoWidget(){
                                "QListWidget::Item:hover{padding-left:5px; background:#333; }"
                                "QListWidget::item:selected{padding-left:15px;background:#555;}"
                                );
+    connect(m_pListWidget, &QListWidget::itemDoubleClicked, [=](QListWidgetItem * item){
+        emit playMedia(m_pListWidget->row(item));
+    });
 }
 void VideoWidget::adjustWidget(){
     /*
@@ -86,7 +90,9 @@ void VideoWidget::removeMedia(){
     /*
      * 移除资源
     */
-    delete m_pListWidget->takeItem(m_pListWidget->currentRow());
+    int index = m_pListWidget->currentRow();
+    delete m_pListWidget->takeItem(index);
+    emit deleteMedia(index);
 }
 void VideoWidget::addMedia(const QString &fileName){
     /*
@@ -127,7 +133,7 @@ void VideoWidget::openFile(){
     if (!fileName.length()){
         return;
     }
-    emit playNewMedia(fileName);
+    emit playNewMedias(fileName);
 }
 void VideoWidget::showButton(){
     /*
@@ -172,9 +178,16 @@ void VideoWidget::wheelEvent(QWheelEvent *event){
 }
 void VideoWidget::dropEvent(QDropEvent *event){
     QList<QUrl> urls = event->mimeData()->urls();
+    QStringList files;
+    for (int i = 0; i < urls.size(); ++i){
+        files.append(urls.at(i).toString());
+    }
+    emit playNewMedias(files);
 }
 void VideoWidget::dragEnterEvent(QDragEnterEvent *event){
-
+    //如果为文件，则支持拖放
+    if (event->mimeData()->hasFormat("text/uri-list"))
+        event->acceptProposedAction();
 }
 void VideoWidget::paintEvent(QPaintEvent *){
     QStyleOption opt;

@@ -16,7 +16,6 @@
 #include <QTimer>
 #include <QDockWidget>
 #include <QDesktopWidget>
-#include <QApplication>
 #include <QDebug>
 
 
@@ -58,7 +57,9 @@ signals:
     void positionChanged(qint64 pos); //进度变化
     void volumeChanged(int increment);  //音量变化
 
-    void playNewMedia(QStringList files); //播放新资源
+    void playNewMedias(QStringList files); //播放新资源
+    void deleteMedia(int index);    //移除指定资源
+    void playMedia(int index);   //播放指定资源
 
 private:
     bool m_bIsListShowing;
